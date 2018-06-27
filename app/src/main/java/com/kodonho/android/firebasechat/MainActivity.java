@@ -1,5 +1,6 @@
 package com.kodonho.android.firebasechat;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -122,9 +123,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void clickSignin(View view){
+        String email = editEmail.getText().toString();
+        String password = editPassword.getText().toString();
         if(!verifyAccount()){
             return;
         }
+        mAuth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        if(!user.isEmailVerified()){
+                            Toast.makeText(getBaseContext(), "이메일 검증이 되지 않습니다. 검증 이메일을 등록한 주소로 재발송하였습니다.", Toast.LENGTH_LONG).show();
+                            user.sendEmailVerification();
+                        }else{
+                            startActivity(new Intent(getBaseContext(), ChatList.class));
+                            finish();
+                        }
+                    } else {
+                        Toast.makeText(getBaseContext(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                });
     }
 
     private void setView(){
