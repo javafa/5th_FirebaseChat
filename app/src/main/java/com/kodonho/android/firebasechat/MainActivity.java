@@ -15,11 +15,13 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
 
-    LinearLayout layout;
     EditText editEmail, editPassword, editConfirm, editNickname;
 
     @Override
@@ -31,10 +33,41 @@ public class MainActivity extends AppCompatActivity {
         setView();
     }
 
+    private boolean verifyAccount(){
+        boolean check = true;
+        String email = editEmail.getText().toString();
+        String password = editPassword.getText().toString();
+
+        // 이메일의 유효성 검증
+        if(!checkEmail(email)){
+            Toast.makeText(this, "이메일의 형식이 잘못되었습니다", Toast.LENGTH_SHORT).show();
+            check = false;
+        }
+        // 비밀번호의 유효성 검증
+        if(!checkPassword(password)){
+            Toast.makeText(this, "비밀번호의 형식이 잘못되었습니다", Toast.LENGTH_SHORT).show();
+            check = false;
+        }
+        return check;
+    }
+    public boolean checkEmail(String email){
+        String regex = "^[_a-zA-Z0-9-\\.]+@[\\.a-zA-Z0-9-]+\\.[a-zA-Z]+$";
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(email);
+        return m.matches();
+    }
+    public boolean checkPassword(String password){
+        String regex = "^[a-zA-Z0-9]{8,}$";
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(password);
+        return m.matches();
+    }
+
     public void clickSignup(View view){
-        if(layout.getVisibility() == View.INVISIBLE) {
-            layout.setVisibility(View.VISIBLE);
-        }else if(layout.getVisibility() == View.VISIBLE) {
+        if(editConfirm.getVisibility() == View.GONE) {
+            editConfirm.setVisibility(View.VISIBLE);
+            editNickname.setVisibility(View.VISIBLE);
+        }else if(editConfirm.getVisibility() == View.VISIBLE) {
             writeNewUser();
         }
     }
@@ -42,6 +75,15 @@ public class MainActivity extends AppCompatActivity {
     private void writeNewUser(){
         String email = editEmail.getText().toString();
         String password = editPassword.getText().toString();
+        String confirm = editConfirm.getText().toString();
+        // 입력값 검증
+        if(!verifyAccount()){
+            return;
+        }
+        if(!password.equals(confirm)){
+            Toast.makeText(this, "Password 와 Confirm Password가 다릅니다", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         mAuth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -51,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
                         FirebaseUser user = mAuth.getCurrentUser();
                         // 이메일이 검증되었는지 확인후 안되었으면 검증 이메일 발송 요청
                         if(!user.isEmailVerified()){
+                            Toast.makeText(getBaseContext(), "검증 이메일을 등록한 주소로 발송하였습니다.", Toast.LENGTH_LONG).show();
                             user.sendEmailVerification();
                         }
                     } else {
@@ -61,11 +104,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void clickSignin(View view){
-
+        if(!verifyAccount()){
+            return;
+        }
     }
 
     private void setView(){
-        layout = findViewById(R.id.layout);
         editEmail = findViewById(R.id.editEmail);
         editPassword = findViewById(R.id.editPassword);
         editConfirm = findViewById(R.id.editConfirm);
