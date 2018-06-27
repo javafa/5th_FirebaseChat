@@ -14,14 +14,19 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.jakewharton.rxbinding2.widget.RxTextView;
+import com.jakewharton.rxbinding2.widget.TextViewTextChangeEvent;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.reactivex.Observable;
+
+import static com.jakewharton.rxbinding2.widget.RxTextView.textChangeEvents;
+
 public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
-
     EditText editEmail, editPassword, editConfirm, editNickname;
 
     @Override
@@ -29,15 +34,26 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mAuth = FirebaseAuth.getInstance();
-
         setView();
+
+        Observable<TextViewTextChangeEvent> idObs = textChangeEvents(editEmail);
+        Observable<TextViewTextChangeEvent> pwObs = textChangeEvents(editPassword);
+
+        Observable.combineLatest(idObs,pwObs,
+            (idChanges,pwChanges) -> {
+                boolean idCheck = checkEmail(idChanges.text().toString());
+                boolean pwCheck = checkPassword(pwChanges.text().toString());
+                return idCheck && pwCheck;
+            })
+            .subscribe(
+                checkFlag -> findViewById(R.id.btnSignin).setEnabled(checkFlag)
+            );
     }
 
     private boolean verifyAccount(){
         boolean check = true;
         String email = editEmail.getText().toString();
         String password = editPassword.getText().toString();
-
         // 이메일의 유효성 검증
         if(!checkEmail(email)){
             Toast.makeText(this, "이메일의 형식이 잘못되었습니다", Toast.LENGTH_SHORT).show();
@@ -50,12 +66,14 @@ public class MainActivity extends AppCompatActivity {
         }
         return check;
     }
+
     public boolean checkEmail(String email){
         String regex = "^[_a-zA-Z0-9-\\.]+@[\\.a-zA-Z0-9-]+\\.[a-zA-Z]+$";
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(email);
         return m.matches();
     }
+
     public boolean checkPassword(String password){
         String regex = "^[a-zA-Z0-9]{8,}$";
         Pattern p = Pattern.compile(regex);
