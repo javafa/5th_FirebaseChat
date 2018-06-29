@@ -18,6 +18,10 @@ import java.util.List;
 
 public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.Holder>{
     List<Room> data = new ArrayList<>();
+    String user_id;
+    public RoomListAdapter(String user_id){
+        this.user_id = user_id;
+    }
     public void setDataAndRefresh(List<Room> data){
         this.data = data;
         notifyDataSetChanged();
@@ -53,6 +57,7 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.Holder
                     Intent intent = new Intent(v.getContext(), ChatRoom.class);
                     intent.putExtra(ChatRoom.ROOM_ID,room.id);
                     intent.putExtra(ChatRoom.ROOM_NAME,room.name);
+                    intent.putExtra(ChatRoom.USER_ID, user_id);
                     v.getContext().startActivity(intent);
                 }
             });

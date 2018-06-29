@@ -1,5 +1,6 @@
 package com.kodonho.android.firebasechat;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -25,6 +26,8 @@ public class ChatList extends AppCompatActivity {
     FirebaseDatabase database;
     DatabaseReference roomRef;
 
+    String user_id;
+
     RecyclerView recyclerView;
     LinearLayout layoutAdd;
     EditText editName;
@@ -37,13 +40,19 @@ public class ChatList extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_list);
+        init();
         setAdapter();
         setView();
         setDatabase();
     }
 
+    private void init(){
+        Intent intent = getIntent();
+        user_id = intent.getStringExtra(ChatRoom.USER_ID);
+    }
+
     private void setAdapter(){
-        adapter = new RoomListAdapter();
+        adapter = new RoomListAdapter(user_id);
     }
 
     private void setView() {

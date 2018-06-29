@@ -136,7 +136,9 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(getBaseContext(), "이메일 검증이 되지 않습니다. 검증 이메일을 등록한 주소로 재발송하였습니다.", Toast.LENGTH_LONG).show();
                             user.sendEmailVerification();
                         }else{
-                            startActivity(new Intent(getBaseContext(), ChatList.class));
+                            Intent intent = new Intent(getBaseContext(), ChatList.class);
+                            intent.putExtra(ChatRoom.USER_ID, email);
+                            startActivity(intent);
                             finish();
                         }
                     } else {
