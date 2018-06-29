@@ -1,7 +1,7 @@
 package com.kodonho.android.firebasechat.domain;
 
 public class Chat {
-    String user_id;
-    String msg;
-    long timestamp;
+    public String user_id;
+    public String msg;
+    public long timestamp;
 }

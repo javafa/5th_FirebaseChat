@@ -52,6 +52,7 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.Holder
                 public void onClick(View v) {
                     Intent intent = new Intent(v.getContext(), ChatRoom.class);
                     intent.putExtra(ChatRoom.ROOM_ID,room.id);
+                    intent.putExtra(ChatRoom.ROOM_NAME,room.name);
                     v.getContext().startActivity(intent);
                 }
             });
